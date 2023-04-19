@@ -3,9 +3,8 @@
 from tkinter import *
 from tkinter import messagebox
 
-from psycopg2 import errors
-
-from db import close_db_connection, select_hint_from_db, connect_to_db
+from db import close_db_connection
+from db import check_if_secret_table_exists
 
 BG_COLOR = '#669170'
 
@@ -20,15 +19,6 @@ def remove_entry_and_button():
     add_hint_entry.destroy()
     add_secret_word_label.destroy()
     add_hint_label.destroy()
-
-
-def check_if_secret_table_exists():
-    try:
-        connect_to_db()
-        select_hint_from_db()
-        return True
-    except errors.UndefinedTable:
-        return False
     
 
 window = Tk()

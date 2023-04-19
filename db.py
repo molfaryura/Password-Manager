@@ -92,3 +92,11 @@ def select_hint_from_db():
     CUR.execute(sql.SQL('''SELECT hint FROM SecretWord'''))
     rows = CUR.fetchall()
     return rows
+
+def check_if_secret_table_exists():
+    try:
+        connect_to_db()
+        select_hint_from_db()
+        return True
+    except psycopg2.errors.UndefinedTable:
+        return False
