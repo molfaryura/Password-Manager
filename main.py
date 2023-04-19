@@ -3,7 +3,9 @@
 from tkinter import *
 from tkinter import messagebox
 
-from db import close_db_connection
+from psycopg2 import errors
+
+from db import close_db_connection, select_hint_from_db, connect_to_db
 
 BG_COLOR = '#669170'
 
@@ -11,6 +13,23 @@ def on_closing():
     if messagebox.askokcancel("Quit", "Do you want to quit?"):
         close_db_connection()
         window.destroy()
+
+def remove_entry_and_button():
+    add_secret_word_button.destroy()
+    add_secret_word_entry.destroy()
+    add_hint_entry.destroy()
+    add_secret_word_label.destroy()
+    add_hint_label.destroy()
+
+
+def check_if_secret_table_exists():
+    try:
+        connect_to_db()
+        select_hint_from_db()
+        return True
+    except errors.UndefinedTable:
+        return False
+    
 
 window = Tk()
 window.title('Password Manager')
@@ -58,8 +77,33 @@ spinner.grid(column=2, row=3, padx=5)
 add_button = Button(text='Save account and password',highlightthickness=0, width=21)
 add_button.grid(column=1, row=4, columnspan=1, pady=10)
 
+
+if not check_if_secret_table_exists():
+    messagebox.showinfo(title='Attention', message=('I see that there are no passwords stored in the database.' 
+                                                    'Please create secret word, hint, and type the icon to start. '))
+    save_image = PhotoImage(file='img/save.png')
+    add_secret_word_button = Button(image=save_image,highlightthickness=0, bg=BG_COLOR ,command=remove_entry_and_button)
+    add_secret_word_button.grid(column=2, row=4,  pady=10, rowspan=2)
+
+    add_secret_word_entry = Entry(width=21)
+    add_secret_word_entry.grid(column=1, row=4, pady=10)
+
+    add_hint_entry = Entry(width=21)
+    add_hint_entry.grid(column=1, row=5)
+
+    add_secret_word_label = Label(text='Create Secret Word:', bg=BG_COLOR, font=('Arial', 12, 'bold'))
+    add_secret_word_label.grid(column=0, row=4)
+
+    add_hint_label = Label(text='Create Hint:', bg=BG_COLOR, font=('Arial', 12, 'bold'))
+    add_hint_label.grid(column=0, row=5)
+
+
+    add_button.grid(column=1, row=6)
+
+
 window.protocol("WM_DELETE_WINDOW", on_closing)
 
 
 if __name__ == '__main__':
+    check_if_secret_table_exists()
     window.mainloop()
