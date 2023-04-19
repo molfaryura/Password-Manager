@@ -3,7 +3,14 @@
 from tkinter import *
 from tkinter import messagebox
 
+from db import close_db_connection
+
 BG_COLOR = '#669170'
+
+def on_closing():
+    if messagebox.askokcancel("Quit", "Do you want to quit?"):
+        close_db_connection()
+        window.destroy()
 
 window = Tk()
 window.title('Password Manager')
@@ -50,6 +57,8 @@ spinner.grid(column=2, row=3, padx=5)
 
 add_button = Button(text='Save account and password',highlightthickness=0, width=21)
 add_button.grid(column=1, row=4, columnspan=1, pady=10)
+
+window.protocol("WM_DELETE_WINDOW", on_closing)
 
 
 if __name__ == '__main__':
