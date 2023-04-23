@@ -5,8 +5,7 @@ import hashlib
 from tkinter import *
 from tkinter import messagebox
 
-from db import close_db_connection, create_secret_word_table, connect_to_db
-from db import check_if_secret_table_exists, insert_secret_word_and_hint, select_hint_from_db
+import db
 
 BG_COLOR = '#669170'
 
@@ -21,9 +20,9 @@ class PasswordManager():
         logo_img = PhotoImage(file='img/logo.png')
         self.canvas.create_image(100, 100, image=logo_img)
         self.canvas.grid(column=1, row=0)
-
+        
+        db.connect_to_db()
         self.check_secret_table()
-        connect_to_db()
 
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
@@ -64,7 +63,7 @@ class PasswordManager():
         self.spinner = Spinbox(self.window, from_=4, to=30, increment=1, width=2)
         self.spinner.grid(column=2, row=3, padx=5)
 
-        self.add_button = Button(text='Save account and password',highlightthickness=0, width=21)
+        self.add_button = Button(text='Save account and password',highlightthickness=0, width=21, command=self.pressed_add_button)
         self.add_button.grid(column=1, row=4, columnspan=1, pady=10)
 
     
@@ -99,24 +98,46 @@ class PasswordManager():
         self.create_main_widgets()
 
     def pressed_hint_button(self):
-        hint = select_hint_from_db()
+        hint = db.select_hint_from_db()
         messagebox.showinfo(message=hint)
+
+    def pressed_add_button(self):
+        if self.is_secret_word_match():
+            db.create_main_table()
+            account = self.account_entry.get()
+            password = self.password_entry.get()
+            db.insert_account_and_password(account, password)
+            messagebox.showinfo(title='Success',
+                                message=('Data has been saved successfully.'))
+        else:
+            messagebox.showerror(title='Error', message=('Incorrect secret word!'))
+        
+        self.clear_entry()
 
 
     def save_secrete_word_and_hint(self):
-        self.secret_word = hashlib.sha256(self.add_hint_entry.get().encode()).hexdigest()
+        secret_word = hashlib.sha256(self.add_hint_entry.get().encode()).hexdigest()
         self.hint = self.add_hint_entry.get()
-        create_secret_word_table()
-        insert_secret_word_and_hint(self.secret_word, self.hint)
+        db.create_secret_word_table()
+        db.insert_secret_word_and_hint(secret_word, self.hint)
+
+    def is_secret_word_match(self):
+        user_secret_word = hashlib.sha256(self.secret_word_entry.get().encode()).hexdigest()
+        return user_secret_word == db.select_secret_word_from_db()[0][0]
 
 
     def check_secret_table(self):
-        if not check_if_secret_table_exists():
+        if not db.check_if_secret_table_exists():
             self.create_secret_word()
         else:
             self.create_main_widgets()
 
+    def clear_entry(self):
+        self.account_entry.delete(0, END)
+        self.password_entry.delete(0, END)
+        self.secret_word_entry.delete(0, END)
+
     def on_closing(self):
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
-            close_db_connection()
+            db.close_db_connection()
             self.window.destroy()
