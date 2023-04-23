@@ -66,12 +66,30 @@ def create_secret_word_table():
 
 def insert_secret_word_and_hint(secret_word, user_hint):
     """Insert secret word and a hint into a table
+    
+    Args:
+        secret_word(str): Secret word to save.
+        user_hint(str): Hint for the secret word.
 
     Returns: None
     """
     CUR.execute('''INSERT INTO SecretWord (word, hint)
                            VALUES (%s, %s) ''',
                            (secret_word, user_hint))
+    CONN.commit()
+
+def insert_account_and_password(account, password):
+    """Insert account and a password into a table
+
+    Args:
+        account (str): The account to save.
+        password(str): Password for the account.
+
+    Returns: None
+    """
+    CUR.execute('''INSERT INTO Passwords (account, password)
+                           VALUES (%s, %s) ''',
+                           (account, password))
     CONN.commit()
 
 
@@ -100,6 +118,17 @@ def select_hint_from_db():
     """
 
     CUR.execute(sql.SQL('''SELECT hint FROM SecretWord'''))
+    rows = CUR.fetchall()
+    return rows
+
+def select_secret_word_from_db():
+    """Selects a secret word from the SecretWord table
+
+    Returns:
+        list: A list of tuples containing the 'word' values.
+    """
+
+    CUR.execute(sql.SQL('''SELECT word FROM SecretWord'''))
     rows = CUR.fetchall()
     return rows
 
