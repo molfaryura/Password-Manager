@@ -3,8 +3,8 @@
 from tkinter import *
 from tkinter import messagebox
 
-from db import close_db_connection
-from db import check_if_secret_table_exists
+from db import close_db_connection, create_secret_word_table, connect_to_db
+from db import check_if_secret_table_exists, insert_secret_word_and_hint
 
 BG_COLOR = '#669170'
 
@@ -21,6 +21,7 @@ class PasswordManager():
         self.canvas.grid(column=1, row=0)
 
         self.check_secret_table()
+        connect_to_db()
 
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
 
@@ -85,6 +86,8 @@ class PasswordManager():
 
 
     def pressed_add_secret_word_button(self):
+        self.save_secrete_word_and_hint()
+
         self.add_secret_word_button.destroy()
         self.add_secret_word_entry.destroy()
         self.add_hint_entry.destroy()
@@ -92,6 +95,12 @@ class PasswordManager():
         self.add_hint_label.destroy()
 
         self.create_main_widgets()
+
+    def save_secrete_word_and_hint(self):
+        self.secret_word = self.add_hint_entry.get()
+        self.hint = self.add_hint_entry.get()
+        create_secret_word_table()
+        insert_secret_word_and_hint(self.secret_word, self.hint)
 
 
     def check_secret_table(self):
