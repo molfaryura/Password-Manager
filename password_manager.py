@@ -1,5 +1,7 @@
 """GUI Password Manager"""
 
+import hashlib
+
 from tkinter import *
 from tkinter import messagebox
 
@@ -97,7 +99,7 @@ class PasswordManager():
         self.create_main_widgets()
 
     def save_secrete_word_and_hint(self):
-        self.secret_word = self.add_hint_entry.get()
+        self.secret_word = hashlib.sha256(self.add_hint_entry.get().encode()).hexdigest()
         self.hint = self.add_hint_entry.get()
         create_secret_word_table()
         insert_secret_word_and_hint(self.secret_word, self.hint)
