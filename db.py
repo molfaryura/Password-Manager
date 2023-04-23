@@ -60,8 +60,18 @@ def create_secret_word_table():
 
     CUR.execute(sql.SQL('''CREATE TABLE IF NOT EXISTS SecretWord
                         (id serial PRIMARY KEY,
-                        secret_word varchar(255),
+                        word varchar(255),
                         hint varchar(255))'''))
+    CONN.commit()
+
+def insert_secret_word_and_hint(secret_word, user_hint):
+    """Insert secret word and a hint into a table
+
+    Returns: None
+    """
+    CUR.execute('''INSERT INTO SecretWord (word, hint)
+                           VALUES (%s, %s) ''',
+                           (secret_word, user_hint))
     CONN.commit()
 
 
