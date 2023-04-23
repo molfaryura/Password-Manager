@@ -5,9 +5,26 @@ import hashlib
 from tkinter import *
 from tkinter import messagebox
 
-import db
+from db import PasswordManagerDatabase
 
 BG_COLOR = '#669170'
+
+def generate_message(account: list):
+    """Creates a string message from the given account information.
+
+    Args:
+        account(list of tuple): The account information in the format [(account, password), ...].
+
+    Returns:
+        str: The generated message with each account and its associated passwords.
+    """
+
+    my_dct = {k: [v for kk, v in account if kk == k] for k, _ in account}
+    if len(my_dct) > 1:
+        return '\n'.join([f"{k}: {', '.join(v)}" for k, v in my_dct.items()])
+    else:
+        return ' '.join([f"{k}: {', '.join(v)}" for k, v in my_dct.items()])
+
 
 class PasswordManager():
 
@@ -21,7 +38,7 @@ class PasswordManager():
         self.canvas.create_image(100, 100, image=logo_img)
         self.canvas.grid(column=1, row=0)
         
-        db.connect_to_db()
+        self.db = PasswordManagerDatabase()
         self.check_secret_table()
 
         self.window.protocol("WM_DELETE_WINDOW", self.on_closing)
@@ -47,7 +64,7 @@ class PasswordManager():
         self.account_entry.grid(column=1, row=2, pady=10)
 
         self.search_button_image = PhotoImage(file='img/search_button.png')
-        self.search_button = Button(image=self.search_button_image, width=32, bg=BG_COLOR, highlightthickness=0)
+        self.search_button = Button(image=self.search_button_image, width=32, bg=BG_COLOR, highlightthickness=0, command=self.show_password)
         self.search_button.grid(column=2, row=2)
 
         self.password_label = Label(text='Password:', bg=BG_COLOR, font=('Arial', 12, 'bold'))
@@ -98,39 +115,56 @@ class PasswordManager():
         self.create_main_widgets()
 
     def pressed_hint_button(self):
-        hint = db.select_hint_from_db()
+        hint = self.db.select_hint_from_db()
         messagebox.showinfo(message=hint)
 
     def pressed_add_button(self):
         if self.is_secret_word_match():
-            db.create_main_table()
+            self.db.create_main_table()
             account = self.account_entry.get()
             password = self.password_entry.get()
-            db.insert_account_and_password(account, password)
+            self.db.insert_account_and_password(account, password)
             messagebox.showinfo(title='Success',
                                 message=('Data has been saved successfully.'))
-        else:
-            messagebox.showerror(title='Error', message=('Incorrect secret word!'))
-        
+
         self.clear_entry()
 
 
     def save_secrete_word_and_hint(self):
         secret_word = hashlib.sha256(self.add_hint_entry.get().encode()).hexdigest()
         self.hint = self.add_hint_entry.get()
-        db.create_secret_word_table()
-        db.insert_secret_word_and_hint(secret_word, self.hint)
+        self.db.create_secret_word_table()
+        self.db.insert_secret_word_and_hint(secret_word, self.hint)
 
-    def is_secret_word_match(self):
+    def is_secret_word_match(self) -> bool:
         user_secret_word = hashlib.sha256(self.secret_word_entry.get().encode()).hexdigest()
-        return user_secret_word == db.select_secret_word_from_db()[0][0]
+        result = user_secret_word == self.db.select_secret_word_from_db()[0][0]
+        if result:
+            return True
+        else:
+            messagebox.showerror(title='Error', message=('Incorrect secret word!'))
+            return False
 
 
     def check_secret_table(self):
-        if not db.check_if_secret_table_exists():
+        if not self.db.check_if_secret_table_exists():
             self.create_secret_word()
         else:
             self.create_main_widgets()
+
+
+    def show_password(self):
+        if self.is_secret_word_match():
+            account_name = self.account_entry.get()
+            result = self.db.select_password_from_db(account_name)
+            if result:
+                message = generate_message(result)
+                messagebox.showinfo(message=message)
+            else:
+                messagebox.showerror(message='This account does not exists')
+
+        self.clear_entry()
+
 
     def clear_entry(self):
         self.account_entry.delete(0, END)
@@ -139,5 +173,5 @@ class PasswordManager():
 
     def on_closing(self):
         if messagebox.askokcancel("Quit", "Do you want to quit?"):
-            db.close_db_connection()
+            self.db.close_db_connection()
             self.window.destroy()
