@@ -6,7 +6,7 @@ from tkinter import *
 from tkinter import messagebox
 
 from db import close_db_connection, create_secret_word_table, connect_to_db
-from db import check_if_secret_table_exists, insert_secret_word_and_hint
+from db import check_if_secret_table_exists, insert_secret_word_and_hint, select_hint_from_db
 
 BG_COLOR = '#669170'
 
@@ -38,7 +38,7 @@ class PasswordManager():
         self.secret_word_entry.focus()
 
         self.hint_button_image = PhotoImage(file='img/hint.png')
-        self.hint_button = Button(image=self.hint_button_image, width=32, bg=BG_COLOR, highlightthickness=0)
+        self.hint_button = Button(image=self.hint_button_image, width=32, bg=BG_COLOR, highlightthickness=0, command=self.pressed_hint_button)
         self.hint_button.grid(column=2, row=1)
 
         self.account_label = Label(text='Account:', bg=BG_COLOR, font=('Arial', 12, 'bold'))
@@ -97,6 +97,11 @@ class PasswordManager():
         self.add_hint_label.destroy()
 
         self.create_main_widgets()
+
+    def pressed_hint_button(self):
+        hint = select_hint_from_db()
+        messagebox.showinfo(message=hint)
+
 
     def save_secrete_word_and_hint(self):
         self.secret_word = hashlib.sha256(self.add_hint_entry.get().encode()).hexdigest()
