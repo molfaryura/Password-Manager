@@ -7,6 +7,26 @@ from config import DB_HOST, DB_NAME, DB_PASSWORD, DB_PORT, DB_USER
 
 
 class PasswordManagerDatabase():
+    """A class that manages the connection to a PostgreSQL database and provides
+    methods for creating and interacting with tables to store user passwords and
+    a secret word with a hint.
+
+    Attributes:
+        connect_to_db (psycopg2.extensions.connection): The database connection object.
+        db_cursor (psycopg2.extensions.cursor): The database cursor object.
+
+    Methods:
+        close_db_connection(): Closes the connection to the database.
+        create_main_table(): Creates a table for storing user passwords.
+        create_secret_word_table(): Creates a table for storing a secret word with a hint.
+        insert_secret_word_and_hint(): Inserts a secret word and hint into the SecretWord table.
+        insert_account_and_password(): Inserts an account and password into the Passwords table.
+        select_password_from_db(): Retrieves the password associated with a specified account.
+        select_hint_from_db(): Retrieves the hint associated with the secret word.
+        select_secret_word_from_db(): Retrieves the secret word from the SecretWord table.
+        check_if_secret_table_exists(): Returns True if the table exists, otherwise False.
+    """
+
     def __init__(self) -> None:
         """Connects to the postgresql database"""
 
