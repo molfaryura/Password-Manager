@@ -7,6 +7,8 @@ from tkinter import messagebox
 
 from db import PasswordManagerDatabase
 
+from password_generator import PassWord
+
 BG_COLOR = '#669170'
 
 def generate_message(account: list):
@@ -46,8 +48,8 @@ class PasswordManager():
         self.window.mainloop()
 
     def create_main_widgets(self):
-        self.secret_word_label = Label(text='Secret Word:', bg=BG_COLOR, font=('Arial', 12, 'bold'))
-        self.secret_word_label.grid(column=0, row=1)
+        secret_word_label = Label(text='Secret Word:', bg=BG_COLOR, font=('Arial', 12, 'bold'))
+        secret_word_label.grid(column=0, row=1)
 
         self.secret_word_entry = Entry(width=21)
         self.secret_word_entry.grid(column=1, row=1)
@@ -57,8 +59,8 @@ class PasswordManager():
         self.hint_button = Button(image=self.hint_button_image, width=32, bg=BG_COLOR, highlightthickness=0, command=self.pressed_hint_button)
         self.hint_button.grid(column=2, row=1)
 
-        self.account_label = Label(text='Account:', bg=BG_COLOR, font=('Arial', 12, 'bold'))
-        self.account_label.grid(column=0, row=2)
+        account_label = Label(text='Account:', bg=BG_COLOR, font=('Arial', 12, 'bold'))
+        account_label.grid(column=0, row=2)
 
         self.account_entry = Entry(width=21)
         self.account_entry.grid(column=1, row=2, pady=10)
@@ -67,17 +69,17 @@ class PasswordManager():
         self.search_button = Button(image=self.search_button_image, width=32, bg=BG_COLOR, highlightthickness=0, command=self.show_password)
         self.search_button.grid(column=2, row=2)
 
-        self.password_label = Label(text='Password:', bg=BG_COLOR, font=('Arial', 12, 'bold'))
-        self.password_label.grid(column=0, row=3)
+        password_label = Label(text='Password:', bg=BG_COLOR, font=('Arial', 12, 'bold'))
+        password_label.grid(column=0, row=3)
 
         self.password_entry = Entry(width=21)
         self.password_entry.grid(column=1, row=3)
 
         self.generate_button_image = PhotoImage(file='img/generator.png')
-        self.generate_password_button = Button(image=self.generate_button_image, bg=BG_COLOR, highlightthickness=0)
+        self.generate_password_button = Button(image=self.generate_button_image, bg=BG_COLOR, highlightthickness=0, command=self.pressed_password_button)
         self.generate_password_button.grid(column=3, row=3, padx=5)
 
-        self.spinner = Spinbox(self.window, from_=4, to=30, increment=1, width=2)
+        self.spinner = Spinbox(self.window, from_=4, to=20, increment=1, width=2)
         self.spinner.grid(column=2, row=3, padx=5)
 
         self.add_button = Button(text='Save account and password',highlightthickness=0, width=21, command=self.pressed_add_button)
@@ -128,6 +130,12 @@ class PasswordManager():
                                 message=('Data has been saved successfully.'))
 
         self.clear_entry()
+
+    def pressed_password_button(self):
+        self.password_entry.delete(0, END)
+        number = int(self.spinner.get())
+        password = PassWord(number).password
+        self.password_entry.insert(END, password)
 
 
     def save_secrete_word_and_hint(self):
