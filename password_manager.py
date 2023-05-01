@@ -15,7 +15,7 @@ from widgets import MainWidgets, Buttons, SecretWordUi
 
 BG_COLOR = '#669170'
 
-def generate_message(account: list):
+def generate_message(account: list) -> str:
     """Creates a string message from the given account information.
 
     Args:
@@ -98,7 +98,7 @@ class PasswordManager():
 
         self.window.mainloop()
 
-    def create_main_widgets(self):
+    def create_main_widgets(self) -> None:
         """Creates the main widgets of the GUI for account and password input."""
 
         secret_word_label = Label(text='Secret Word:', bg=BG_COLOR, font=('Arial', 12, 'bold'))
@@ -119,7 +119,7 @@ class PasswordManager():
         password_label.grid(column=0, row=3)
 
 
-    def pressed_add_secret_word(self):
+    def pressed_add_secret_word(self) -> None:
         """Saves the secret word and hint to the database and creates the main widgets."""
 
         if self.save_secrete_word_and_hint():
@@ -133,13 +133,13 @@ class PasswordManager():
         else:
             messagebox.showerror(title='Error', message='Please fill in all fields.')
 
-    def pressed_hint_button(self):
+    def pressed_hint_button(self) -> None:
         """Shows the hint associated with the secret word."""
 
         hint = self.data_base.select_hint_from_db()
         messagebox.showinfo(message=hint)
 
-    def pressed_add_button(self):
+    def pressed_add_button(self) -> bool:
         """Saves the account and password to the database if the secret word is correct."""
         account = self.main_widgets.account_entry.get()
         password = self.main_widgets.password_entry.get()
@@ -158,7 +158,7 @@ class PasswordManager():
 
         return True
 
-    def pressed_password_button(self):
+    def pressed_password_button(self) -> None:
         """Generates a random password and inserts it into the password entry."""
 
         self.main_widgets.password_entry.delete(0, END)
@@ -167,7 +167,7 @@ class PasswordManager():
         self.main_widgets.password_entry.insert(END, password)
 
 
-    def save_secrete_word_and_hint(self):
+    def save_secrete_word_and_hint(self) -> bool:
         """Hashes and saves the secret word and hint to the database."""
 
         secret_word_entry = self.secret_word_buttons.add_secret_word_entry.get()
@@ -201,7 +201,7 @@ class PasswordManager():
         return False
 
 
-    def check_secret_table(self):
+    def check_secret_table(self) -> None:
         """Checks if the secret word table exists in the database and displays the GUI."""
 
         self.data_base.start_db_connection()
@@ -216,7 +216,7 @@ class PasswordManager():
             self.create_main_widgets()
 
 
-    def show_password(self):
+    def show_password(self) -> None:
         """Retrieves and shows the password for the selected account."""
 
         if self.is_secret_word_match():
@@ -230,7 +230,7 @@ class PasswordManager():
 
         self.clear_entry()
 
-    def config_main_buttons(self):
+    def config_main_buttons(self) -> None:
         """Configures the command functions for the main buttons of the GUI."""
 
         PasswordManager.main_buttons.hint_button.config(command=self.pressed_hint_button)
@@ -241,14 +241,14 @@ class PasswordManager():
         PasswordManager.main_buttons.add_button.config(command=self.pressed_add_button)
 
 
-    def clear_entry(self):
+    def clear_entry(self) -> None:
         """Clears the input fields of the main widgets."""
 
         self.main_widgets.account_entry.delete(0, END)
         self.main_widgets.password_entry.delete(0, END)
         self.main_widgets.secret_word_entry.delete(0, END)
 
-    def on_closing(self):
+    def on_closing(self) -> None:
         """Closes the database connection and destroys the Tkinter window
         when the user closes the application.
         """
