@@ -122,15 +122,16 @@ class PasswordManager():
     def pressed_add_secret_word(self):
         """Saves the secret word and hint to the database and creates the main widgets."""
 
-        self.save_secrete_word_and_hint()
+        if self.save_secrete_word_and_hint():
+            PasswordManager.secret_word_buttons.add_secret_word_button.destroy()
+            PasswordManager.secret_word_buttons.add_secret_word_entry.destroy()
+            PasswordManager.secret_word_buttons.add_hint_entry.destroy()
+            PasswordManager.secret_word_buttons.add_secret_word_label.destroy()
+            PasswordManager.secret_word_buttons.add_hint_label.destroy()
 
-        PasswordManager.secret_word_buttons.add_secret_word_button.destroy()
-        PasswordManager.secret_word_buttons.add_secret_word_entry.destroy()
-        PasswordManager.secret_word_buttons.add_hint_entry.destroy()
-        PasswordManager.secret_word_buttons.add_secret_word_label.destroy()
-        PasswordManager.secret_word_buttons.add_hint_label.destroy()
-
-        self.create_main_widgets()
+            self.create_main_widgets()
+        else:
+            messagebox.showerror(title='Error', message='Please fill in all fields.')
 
     def pressed_hint_button(self):
         """Shows the hint associated with the secret word."""
@@ -140,16 +141,22 @@ class PasswordManager():
 
     def pressed_add_button(self):
         """Saves the account and password to the database if the secret word is correct."""
+        account = self.main_widgets.account_entry.get()
+        password = self.main_widgets.password_entry.get()
+
+        if len(account) < 1 or len(password) < 1:
+            messagebox.showerror(title='Error', message='Please fill in all fields.')
+            return False
 
         if self.is_secret_word_match():
             self.data_base.create_main_table()
-            account = self.main_widgets.account_entry.get()
-            password = self.main_widgets.password_entry.get()
             self.data_base.insert_account_and_password(account, password)
             messagebox.showinfo(title='Success',
                                 message=('Data has been saved successfully.'))
 
         self.clear_entry()
+
+        return True
 
     def pressed_password_button(self):
         """Generates a random password and inserts it into the password entry."""
@@ -163,9 +170,12 @@ class PasswordManager():
     def save_secrete_word_and_hint(self):
         """Hashes and saves the secret word and hint to the database."""
 
-        secret_word = hashlib.sha256(self.secret_word_buttons.add_secret_word_entry.get().encode())
+        secret_word_entry = self.secret_word_buttons.add_secret_word_entry.get()
+        secret_word = hashlib.sha256(secret_word_entry.encode())
         secret_word = secret_word.hexdigest()
         hint = self.secret_word_buttons.add_hint_entry.get()
+        if len(secret_word_entry) < 1 or len(hint) < 1:
+            return False
 
         try:
             self.data_base.create_secret_word_table()
@@ -175,6 +185,9 @@ class PasswordManager():
             self.data_base.create_secret_word_table()
 
         self.data_base.insert_secret_word_and_hint(secret_word, hint)
+        messagebox.showinfo(title='Success', message='Data has been saved successfully.')
+
+        return True
 
     def is_secret_word_match(self) -> bool:
         """Compares the hashed secret word entered by the user to the one in the database."""
