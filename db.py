@@ -30,6 +30,11 @@ class PasswordManagerDatabase():
     def __init__(self) -> None:
         """Connects to the postgresql database"""
 
+        self.connect_to_db = None
+
+        self.db_cursor = None
+
+    def start_db_connection(self):
         self.connect_to_db = psycopg2.connect(host=DB_HOST,
                                 dbname=DB_NAME,
                                 user=DB_USER,
@@ -61,11 +66,13 @@ class PasswordManagerDatabase():
     def create_secret_word_table(self) -> None:
         """Creates a table for the secret word"""
 
-        self.db_cursor.execute(sql.SQL('''CREATE TABLE IF NOT EXISTS SecretWord
-                            (id serial PRIMARY KEY,
-                            word varchar(255),
-                            hint varchar(255))'''))
+        self.db_cursor.execute('''CREATE TABLE IF NOT EXISTS SecretWord
+                                (id serial PRIMARY KEY,
+                                word varchar(255),
+                                hint varchar(255))''')
+
         self.connect_to_db.commit()
+
 
     def insert_secret_word_and_hint(self, secret_word, user_hint) -> None:
         """Insert secret word and a hint into a table
@@ -74,9 +81,10 @@ class PasswordManagerDatabase():
             secret_word(str): Secret word to save.
             user_hint(str): Hint for the secret word.
         """
+
         self.db_cursor.execute('''INSERT INTO SecretWord (word, hint)
-                            VALUES (%s, %s) ''',
-                            (secret_word, user_hint))
+                                VALUES (%s, %s) ''',
+                                (secret_word, user_hint))
         self.connect_to_db.commit()
 
     def insert_account_and_password(self, account, password) -> None:
