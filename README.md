@@ -22,7 +22,7 @@ To start the Password Manager, run `python main.py` in your terminal.
 <img src="img/demo.png">
 
 ## :toolbox: Contributing
-Contributions are welcome! Please feel free to submit a pull request or open an issueif you encounter a bug or have a suggestion for an improvement.
+Contributions are welcome! Please feel free to submit a pull request or open an issue if you encounter a bug or have a suggestion for an improvement.
 
 ## Contact
 If you have any questions, comments, or suggestions, please feel free to contact me at oleksandrr1996@protonmail.com
